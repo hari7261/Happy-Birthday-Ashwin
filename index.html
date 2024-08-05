@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday ASHWIN SUNDAR</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/geometries/TextGeometry.js"></script>
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        function addStar() {
+            const geometry = new THREE.SphereGeometry(0.05, 24, 24);
+            const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(geometry, material);
+            const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(100));
+            star.position.set(x, y, z);
+            scene.add(star);
+        }
+        Array(500).fill().forEach(addStar);
+
+        let mainTextMesh, nameTextMesh, wishesTextMesh;
+
+        const loader = new THREE.FontLoader();
+        loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+            const textMaterials = [
+                new THREE.MeshPhongMaterial({ color: 0xffd700 }), // Front
+                new THREE.MeshPhongMaterial({ color: 0xff6347 })  // Side
+            ];
+
+            // Main "Happy Birthday" text
+            const mainTextGeometry = new THREE.TextGeometry('Happy Birthday', {
+                font: font,
+                size: 0.5,
+                height: 0.2,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.03,
+                bevelSize: 0.02,
+                bevelOffset: 0,
+                bevelSegments: 5
+            });
+            mainTextGeometry.center();
+            mainTextMesh = new THREE.Mesh(mainTextGeometry, textMaterials);
+            mainTextMesh.position.y = 1;
+            scene.add(mainTextMesh);
+
+            // Name text
+            const nameGeometry = new THREE.TextGeometry('ASHWIN SUNDAR', {
+                font: font,
+                size: 0.4,
+                height: 0.1,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.02,
+                bevelSize: 0.01,
+                bevelOffset: 0,
+                bevelSegments: 5
+            });
+            nameGeometry.center();
+            nameTextMesh = new THREE.Mesh(nameGeometry, textMaterials);
+            nameTextMesh.position.y = 0;
+            scene.add(nameTextMesh);
+
+            // Additional wishes text
+            const wishesText = "Wishing you joy, success, and wonderful adventures!\nMay your day be filled with laughter and love!\nCheers to another amazing year ahead!";
+            const wishesGeometry = new THREE.TextGeometry(wishesText, {
+                font: font,
+                size: 0.15,
+                height: 0.05,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.01,
+                bevelSize: 0.005,
+                bevelOffset: 0,
+                bevelSegments: 5
+            });
+            wishesGeometry.center();
+            wishesTextMesh = new THREE.Mesh(wishesGeometry, textMaterials);
+            wishesTextMesh.position.y = -1;
+            scene.add(wishesTextMesh);
+
+            camera.position.z = 5;
+        });
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        }
+
+        window.addEventListener('mousemove', onMouseMove, false);
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Twinkle stars
+            scene.children.forEach(child => {
+                if (child instanceof THREE.Mesh && child.geometry instanceof THREE.SphereGeometry) {
+                    child.material.opacity = Math.random();
+                }
+            });
+
+            // Hover effect on name
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children);
+            
+            if (nameTextMesh) {
+                if (intersects.length > 0 && intersects[0].object === nameTextMesh) {
+                    nameTextMesh.scale.set(1.2, 1.2, 1.2);
+                } else {
+                    nameTextMesh.scale.set(1, 1, 1);
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', function() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }, false);
+
+        // Play background music
+        const bgMusic = document.getElementById('bgMusic');
+        document.body.addEventListener('click', function() {
+            bgMusic.play();
+        }, { once: true });
+    </script>
+</body>
+</html>
